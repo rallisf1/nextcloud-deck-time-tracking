@@ -28,10 +28,10 @@ class TimesheetCalendarBackend {
 	}
 
     public function getUserIds() {
-        $timesheets = $this->timesheetMapper->findForCalendar();
-        $users = array_map(function ($timesheet) {
-            return $timesheet->getUserId();
-        }, $timesheets);
+        $rows = $this->timesheetMapper->findCalendarUsers();
+        $users = array_map(function ($row) {
+            return $row['user_id'];
+        }, $rows);
         return $users;
     }
 
