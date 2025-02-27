@@ -1,0 +1,122 @@
+button.timesheet.tracker {
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    text-align: center;
+    transform-origin: right center;
+    position: absolute;
+    top: -0.5rem;
+    right: -0.5rem;
+    margin: 0;
+    padding: 0;
+    z-index: 999;
+}
+
+button.timesheet.tracker.active {
+    background-color: var(--color-error);
+    cursor: pointer;
+    border-radius: 0.5rem;
+    width: 4rem;
+}
+
+button.timesheet.tracker.active:hover {
+    background-color: var(--color-error-hover);
+}
+
+button.timesheet.tracker.inactive {
+    background-color: var(--color-success);
+    cursor: pointer;
+}
+
+button.timesheet.tracker.inactive:hover {
+    background-color: var(--color-success-hover);
+}
+
+button.timesheet.tracker.ongoing {
+    background-color: var(--color-info);
+    pointer-events: none;
+    transform-origin: center center;
+    animation: timesheet-rotate 4s infinite cubic-bezier(0.25, 0.8, 0.25, 1);
+    font-size: 1.25rem;
+}
+
+button.timesheet.tracker.ongoing:hover {
+    background-color: var(--color-info-hover);
+}
+
+@keyframes timesheet-rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(180deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.card .card-upper h4 {
+    padding-right: 3.5rem;
+}
+
+table.timesheet {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table.timesheet th,
+table.timesheet td {
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--color-main-text);
+}
+
+table.timesheet th {
+    font-weight: bold;
+}
+
+table.timesheet button {
+    color: var(--color-main-text);
+    padding: 0 0.5rem;
+}
+
+table.timesheet button.add {
+    background-color: var(--color-success);
+}
+
+table.timesheet button.add:hover {
+    background-color: var(--color-success-hover);
+}
+
+table.timesheet button.edit {
+    background-color: var(--color-info);
+}
+
+table.timesheet button.edit:hover {
+    background-color: var(--color-info-hover);
+}
+
+table.timesheet button.delete {
+    background-color: var(--color-error);
+}
+
+table.timesheet button.delete:hover {
+    background-color: var(--color-error-hover);
+}
+
+form.timesheet {
+    display: grid;
+    gap: 1rem;
+}
+
+form.timesheet input,
+form.timesheet select,
+form.timesheet textarea {
+    width: 100%;
+}

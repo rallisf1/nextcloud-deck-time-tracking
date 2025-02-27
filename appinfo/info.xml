@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+	<id>decktimetracking</id>
+	<name>Deck Time Tracking</name>
+	<summary>Adds time tracking capabilities to the Deck app</summary>
+	<description># Deck Time Tracking
+
+A complementary app for Deck, because all the other time tracking (Nextcloud) apps either lack Kanban view, Nextcloud Calendar/CalDAV integration, or are just harder to use (corporate project management style).
+
+## Features
+
+- Adds a start/stop button on each Deck card
+- Adds a timesheet tab on each card's details
+- Only assigned users and users with the edit/manage permission on the board can add time records
+- Time records are also visible in the Calendar and link to the associated Deck card
+
+## Requirements
+
+- Nextcloud 27+
+- Deck App
+- [x] Show card ID badge (checked in Deck settings, refresh after enabling)</description>
+	<version>1.0.0</version>
+	<licence>agpl</licence>
+	<author mail="rallisf1@yahoo.gr" homepage="">John Rallis</author>
+	<namespace>DeckTimeTracking</namespace>
+	<category>organization</category>
+	<category>tools</category>
+	<bugs>https://www.github.com/rallisf1/nextcloud-deck-time-tracking/issues</bugs>
+	<dependencies>
+		<nextcloud min-version="27" max-version="30"/>
+		<app id="deck" min-version="1.0" />
+	</dependencies>
+</info>
