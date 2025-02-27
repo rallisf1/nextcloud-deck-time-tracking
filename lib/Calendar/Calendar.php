@@ -61,7 +61,7 @@ class Calendar implements ICalendar {
 		$result = [];
 		$timesheets = [];
 		$filter = [];
-		$this->logger->debug("Request calendar", ["pattern" => $pattern, "props" => $searchProperties, "options" => $options]);
+		$this->logger->debug("Request calendar", ["pattern" => $pattern, "props" => $searchProperties]);
 		try {
 			if (empty($searchProperties) || $pattern === "") {
 				if(strpos($_SERVER['REQUEST_URI'], 'timesheet-calendar-')) {
@@ -72,7 +72,7 @@ class Calendar implements ICalendar {
 					if(!$userId) return [];
 					$this->user = $this->userManager->get($userId);
 					if($this->user === null) return [];
-					if($options['timerange']){
+					if(array_key_exists('timerange', $options)){
 						$filter['start'] = $options['timerange']->start->format('Y-m-d H:i:s');
 						$filter['end'] = $options['timerange']->end->format('Y-m-d H:i:s');
 					}
