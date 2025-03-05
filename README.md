@@ -56,7 +56,7 @@ The board owner, the board managers, the card owner, and the card assignees.
 
 ### Can this be used to track employee work hours?
 
-Not in the common 9-5 scenario. This helps time tracking people's actions on tasks listed as Nextcloud Deck Cards. The sum of those timesheet records per user should equal working hours as long as your team creates a card and time tracks everything.
+Not in the common 9-5 scenario. This helps time tracking people's actions on tasks listed as Nextcloud Deck Cards. The sum of those timesheet records per user should equal working hours as long as your team creates a card and time tracks everything. For shift tracking take a loot at [Shiftplan](https://apps.nextcloud.com/apps/shifts).
 
 ### Can you add the X feature?
 
