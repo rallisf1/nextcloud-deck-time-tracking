@@ -30,9 +30,6 @@ A complementary app for [Deck](https://github.com/nextcloud/deck), because all t
 
 - Integrate with Activity app for audit logs & notifications
 - Integrate with the Analytics app for reports & charts
-- Assign a client to each card (single user). Will be useful for Analytics reports. either
-  - a separate field from Assignees. Can be a User Select / Contact Select / plain text
-  - or set a Clients User Group in a configuration option and the first Assignee that belongs to that group is the card's Client (most likely this one)
 
 ## Under consideration
 
