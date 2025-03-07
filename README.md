@@ -28,7 +28,6 @@ A complementary app for [Deck](https://github.com/nextcloud/deck), because all t
 
 ## Todo
 
-- Add the Timesheet table to the sidebar detail view (currently it only shows when the details open via modal)
 - Integrate with Activity app for audit logs & notifications
 - Integrate with the Analytics app for reports & charts
 - Assign a client to each card (single user). Will be useful for Analytics reports. either
