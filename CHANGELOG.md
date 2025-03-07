@@ -9,5 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- /js/ wasn't pushed in git & fixed timesheet table on sidebar details 1.0.2
 - Fix for production 1.0.1
 - First release 1.0.0

@@ -20,7 +20,7 @@ A complementary app for Deck, because all the other time tracking (Nextcloud) ap
 - Nextcloud 27+
 - Deck App
 - [x] Show card ID badge (checked in Deck settings, refresh after enabling)</description>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 	<licence>agpl</licence>
 	<author mail="rallisf1@yahoo.gr" homepage="">John Rallis</author>
 	<namespace>DeckTimeTracking</namespace>
