@@ -18,6 +18,8 @@ use \DateTime;
  * @method void setStart(\DateTime $start)
  * @method ?\DateTime getEnd()
  * @method void setEnd(?\DateTime $end)
+ * @method ?\DateTime getReminder()
+ * @method void setReminder(?\DateTime $reminder)
  * @method ?string getDescription()
  * @method void setDescription(?string $description)
  */
@@ -27,6 +29,7 @@ class Timesheet extends Entity implements \JsonSerializable {
     protected $userId;
     protected $start;
     protected ?\DateTime $end = null;
+    protected ?\DateTime $reminder = null;
     protected ?string $description = null;
 
     public function __construct() {
@@ -35,6 +38,7 @@ class Timesheet extends Entity implements \JsonSerializable {
         $this->addType('description', 'string');
         $this->addType('start', 'datetime');
         $this->addType('end', 'datetime');
+        $this->addType('reminder', 'datetime');
     }
 
 	public function getLastModified() {
@@ -50,6 +54,7 @@ class Timesheet extends Entity implements \JsonSerializable {
 			'start' => $this->start,
 			'end' => $this->end,
 			'description' => $this->description,
+			'reminder' => $this->reminder,
 		];
 	}
 }

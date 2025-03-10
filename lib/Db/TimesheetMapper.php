@@ -7,7 +7,8 @@ namespace OCA\DeckTimeTracking\Db;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\IDBConnection;
-use OCP\IUser;
+use \DateTime;
+use \DateInterval;
 
 class TimesheetMapper extends QBMapper {
     private $table = 'deck_timesheet';
@@ -58,40 +59,27 @@ class TimesheetMapper extends QBMapper {
     /**
      * Find all non-archived/deleted time records for a specific user.
      */
-    public function findByPermissions(string $currentUserId, string $userId, int $boardId, array $filter = []): array {
+    public function findByCommonBoards(array $boardIds, string $userId, array $filter = []): array {
         $qb = $this->db->getQueryBuilder();
         $qb->select('t.*')
            ->from($this->table, 't')
            ->join('t', 'deck_cards', 'c', 'c.id = t.card_id')
-           ->join('c', 'deck_stacks', 'st', 'st.id = c.stack_id')
-           ->join('st', 'deck_boards', 'b', 'b.id = st.board_id')
-           ->leftJoin('c', 'deck_assigned_users', 'au', 'au.card_id = c.id AND au.participant = ' . $qb->createNamedParameter($currentUserId, IQueryBuilder::PARAM_STR))
-           ->leftJoin('b', 'deck_board_acl', 'acl', 'acl.board_id = b.id AND acl.permission_manage = '. $qb->createNamedParameter(true, IQueryBuilder::PARAM_BOOL) . ' AND acl.participant = ' . $qb->createNamedParameter($currentUserId, IQueryBuilder::PARAM_STR))
+           ->join('c', 'deck_stacks', 's', 's.id = c.stack_id')
+           ->join('s', 'deck_boards', 'b', 'b.id = s.board_id')
            ->where($qb->expr()->eq('t.user_id', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR)))
            ->andWhere($qb->expr()->eq('c.archived', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
            ->andWhere($qb->expr()->eq('c.deleted_at', $qb->createNamedParameter(0, IQueryBuilder::PARAM_INT)))
-           ->andWhere($qb->expr()->eq('st.deleted_at', $qb->createNamedParameter(0, IQueryBuilder::PARAM_INT)))
+           ->andWhere($qb->expr()->eq('s.deleted_at', $qb->createNamedParameter(0, IQueryBuilder::PARAM_INT)))
            ->andWhere($qb->expr()->eq('b.archived', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
            ->andWhere($qb->expr()->eq('b.deleted_at', $qb->createNamedParameter(0, IQueryBuilder::PARAM_INT)))
-           ->andWhere(
-                $qb->expr()->orX(
-                    $qb->expr()->eq('c.owner', $qb->createNamedParameter($currentUserId, IQueryBuilder::PARAM_STR)),
-                    $qb->expr()->eq('b.owner', $qb->createNamedParameter($currentUserId, IQueryBuilder::PARAM_STR)),
-                    $qb->expr()->isNotNull('au.participant'),
-                    $qb->expr()->isNotNull('acl.participant')
-                )
-           )
+           ->andWhere($qb->expr()->in('s.board_id', $qb->createNamedParameter($boardIds, IQueryBuilder::PARAM_INT_ARRAY)))
            ->groupBy(['t.card_id', 't.id']);
-        
-        if($boardId > 0) {
-            $qb->andWhere($qb->expr()->eq('b.id', $qb->createNamedParameter($boardId, IQueryBuilder::PARAM_INT)));
-        }
 
         if(count($filter)) {
             $qb->andWhere(
                 $qb->expr()->orX(
-                    $qb->expr()->between('t.start', $qb->createNamedParameter($filter['start'], IQueryBuilder::PARAM_DATETIME_IMMUTABLE), $qb->createNamedParameter($filter['end'], IQueryBuilder::PARAM_DATETIME_IMMUTABLE)),
-                    $qb->expr()->between('t.end', $qb->createNamedParameter($filter['start'], IQueryBuilder::PARAM_DATETIME_IMMUTABLE), $qb->createNamedParameter($filter['end'], IQueryBuilder::PARAM_DATETIME_IMMUTABLE))
+                    $qb->expr()->between('t.start', $qb->createNamedParameter($filter['start'], IQueryBuilder::PARAM_DATE), $qb->createNamedParameter($filter['end'], IQueryBuilder::PARAM_DATE)),
+                    $qb->expr()->between('t.end', $qb->createNamedParameter($filter['start'], IQueryBuilder::PARAM_DATE), $qb->createNamedParameter($filter['end'], IQueryBuilder::PARAM_DATE))
                 )
                 
             );
@@ -116,11 +104,32 @@ class TimesheetMapper extends QBMapper {
     }
 
     /**
-     * Delete a time record by ID.
+     * Find all timesheet records that should be reminded.
      */
-    public function deleteById(int $id): void {
-        $entity = $this->find($id);
-        $this->delete($entity);
+    public function findForgotten(): array {
+        $threshold = 60; // in minutes, TODO make this a setting
+        $limit = new DateTime();
+        $limit->sub(new DateInterval('PT' . $threshold . 'M'));
+        $qb = $this->db->getQueryBuilder();
+        $qb->select('*')
+           ->from($this->table)
+           ->where($qb->expr()->isNull('end'))
+           ->andWhere($qb->expr()->isNotNull('reminder'))
+           ->andWhere($qb->expr()->lte('start', $qb->createNamedParameter($limit, IQueryBuilder::PARAM_DATE)));
+
+        return $this->findEntities($qb);
     }
 
+    /**
+     * Find all active timesheet records for the user
+     */
+    public function findUserActive(string $userId): array {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select('*')
+           ->from($this->table)
+           ->where($qb->expr()->eq('t.user_id', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR)))
+           ->andWhere($qb->expr()->isNull('end'));
+
+        return $this->findEntities($qb);
+    }
 }

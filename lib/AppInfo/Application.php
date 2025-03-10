@@ -11,11 +11,14 @@ use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\AppFramework\Http\Events\BeforeTemplateRenderedEvent;
 use OCP\User\Events\UserDeletedEvent;
 use OCA\Deck\Event\CardDeletedEvent;
+use OCA\Deck\Db\AssignmentMapper;
+use OCA\Deck\Service\PermissionService;
 use OCA\DeckTimeTracking\Controller\TimesheetController;
 use OCA\DeckTimeTracking\Listeners\BeforeTemplateRenderedListener;
 use OCA\DeckTimeTracking\Listeners\AssigneeCleanupListener;
 use OCA\DeckTimeTracking\Listeners\CardCleanupListener;
 use OCA\DeckTimeTracking\Middleware\DeckResponseMiddleware;
+use OCA\DeckTimeTracking\Notification\Notifier;
 use OCA\DeckTimeTracking\Provider\CalendarProvider;
 use OCA\DeckTimeTracking\Db\TimesheetMapper;
 use Psr\Container\ContainerInterface;
@@ -36,7 +39,11 @@ class Application extends App implements IBootstrap {
 				$c->get('AppName'),
 				$c->get('Request'),
 				$c->get('TimesheetMapper'),
-				$c->get('IUserSession')
+				$c->get('CardMapper'),
+				$c->get(PermissionService::class),
+				$c->get(AssignmentMapper::class),
+				$c->get('IUserSession'),
+				$c->get('NotificationHelper')
 			);
 		});
 
@@ -55,6 +62,7 @@ class Application extends App implements IBootstrap {
 		$context->registerEventListener(CardDeletedEvent::class, CardCleanupListener::class);
 		$context->registerMiddleware(DeckResponseMiddleware::class, true);
 		$context->registerCalendarProvider(CalendarProvider::class);
+		$context->registerNotifierService(Notifier::class);
 	}
 
 	public function boot(IBootContext $context): void {

@@ -4,26 +4,26 @@ declare(strict_types=1);
 
 namespace OCA\DeckTimeTracking\Calendar;
 
+use OCA\Deck\Db\BoardMapper;
 use OCA\Deck\Db\CardMapper;
 use OCA\DeckTimeTracking\Db\TimesheetMapper;
-use OCP\IUserManager;
 use OCP\IURLGenerator;
 
 class TimesheetCalendarBackend {
 	private $timesheetMapper;
     private $cardMapper;
-    private $userManager;
+    private $boardMapper;
     private $urlGenerator;
 
 	public function __construct(
 		TimesheetMapper $timesheetMapper,
         CardMapper $cardMapper,
-        IUserManager $userManager,
+        BoardMapper $boardMapper,
         IURLGenerator $urlGenerator,
 	) {
 		$this->timesheetMapper = $timesheetMapper;
         $this->cardMapper = $cardMapper;
-        $this->userManager = $userManager;
+        $this->boardMapper = $boardMapper;
         $this->urlGenerator = $urlGenerator;
 	}
 
@@ -35,13 +35,17 @@ class TimesheetCalendarBackend {
         return $users;
     }
 
-    public function canAccess($currentUser, $user, $boardId = 0) {
-        $timesheets = $this->timesheetMapper->findByPermissions($currentUser->getUID(), $user->getUID(), $boardId);
-        return count($timesheets) > 0;
+    public function canAccess($currentUser, $user) {
+        $currentUserBoardIds = $this->boardMapper->findBoardIds($currentUser->getUID());
+        $userBoardIds = $this->boardMapper->findBoardIds($user->getUID());
+        return count(array_intersect($currentUserBoardIds, $userBoardIds)) > 0;
     }
 
     public function getChildren($currentUserId, $userId, $filter) {
-        return $this->timesheetMapper->findByPermissions($currentUserId, $userId, 0, $filter);
+        $currentUserBoardIds = $this->boardMapper->findBoardIds($currentUserId);
+        $userBoardIds = $this->boardMapper->findBoardIds($userId);
+        $commonBoards = array_intersect($currentUserBoardIds, $userBoardIds);
+        return $this->timesheetMapper->findByCommonBoards($commonBoards, $userId, $filter);
     }
 
     public function getChild($calendar_id) {

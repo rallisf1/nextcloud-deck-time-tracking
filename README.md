@@ -8,6 +8,8 @@ A complementary app for [Deck](https://github.com/nextcloud/deck), because all t
 - Adds a timesheet tab on each card's details
 - Only assigned users and users with the edit/manage permission on the board can add time records
 - Time records are also visible in the Calendar and link to the associated Deck card
+- Notifications on interested parties for start/end timer and timesheet add/edit/delete
+- Reminder notification after 1h in case you forgot your timer
 
 ## Requirements
 
@@ -30,6 +32,8 @@ A complementary app for [Deck](https://github.com/nextcloud/deck), because all t
 
 - Integrate with Activity app for audit logs & notifications
 - Integrate with the Analytics app for reports & charts
+- Leverage Deck's PermissionService to allow Timesheet permissions by User Group
+- Use l10n in more place than only notifications
 
 ## Under consideration
 
