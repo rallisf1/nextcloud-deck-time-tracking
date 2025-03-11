@@ -9,7 +9,6 @@ A complementary app for [Deck](https://github.com/nextcloud/deck), because all t
 - Only assigned users and users with the edit/manage permission on the board can add time records
 - Time records are also visible in the Calendar and link to the associated Deck card
 - Notifications on interested parties for start/end timer and timesheet add/edit/delete
-- Reminder notification after 1h in case you forgot your timer
 
 ## Requirements
 
@@ -25,14 +24,13 @@ A complementary app for [Deck](https://github.com/nextcloud/deck), because all t
 - If you are removed from a card and have an active timer, you can no longer stop it because the button is removed. A manager must edit the timesheet manually.
 - When editing / adding timesheet records from the timesheet table seconds are stripped from `start` and `end` fields due to how `datetime-local` works, but it was way easier than using a datepicker library.
 - Editing / adding timesheet records doesn't trigger any state change, the timesheet table and the timer buttons do not sync and you need to reload the state yourself (e.g. change boards or refresh).
-- A timer can be left to run indefinitely. Ideally there should be a global setting and a cron to limit timers to a certain limit and/or send a notification to the timer's owner.
+- A timer can be left to run indefinitely. A reminder notification is sent after 1h in case you forgot your timer
 - The whole thing runs on the browser, on boards with a lot of cards this can be quite demanding for the client's hardware. This is my first nextcloud app and overriding other app templates is way over my head (if possible at all), plus I'm not familiar with Vue either.
 
 ## Todo
 
-- Integrate with Activity app for audit logs & notifications
+- Integrate with Activity app for audit logs
 - Integrate with the Analytics app for reports & charts
-- Leverage Deck's PermissionService to allow Timesheet permissions by User Group
 - Use l10n in more place than only notifications
 
 ## Under consideration
