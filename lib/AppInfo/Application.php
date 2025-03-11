@@ -12,6 +12,7 @@ use OCP\AppFramework\Http\Events\BeforeTemplateRenderedEvent;
 use OCP\User\Events\UserDeletedEvent;
 use OCA\Deck\Event\CardDeletedEvent;
 use OCA\Deck\Db\AssignmentMapper;
+use OCA\Deck\Service\CirclesService;
 use OCA\Deck\Service\PermissionService;
 use OCA\DeckTimeTracking\Controller\TimesheetController;
 use OCA\DeckTimeTracking\Listeners\BeforeTemplateRenderedListener;
@@ -43,6 +44,9 @@ class Application extends App implements IBootstrap {
 				$c->get(PermissionService::class),
 				$c->get(AssignmentMapper::class),
 				$c->get('IUserSession'),
+				$c->get('IUserManager'),
+				$c->get('IGroupManager'),
+				$c->get(CirclesService::class),
 				$c->get('NotificationHelper')
 			);
 		});

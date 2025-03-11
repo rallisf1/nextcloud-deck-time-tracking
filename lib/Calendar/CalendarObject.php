@@ -2,8 +2,6 @@
 
 namespace OCA\DeckTimeTracking\Calendar;
 
-use \DateTime;
-use \DateTimeZone;
 use OCA\DeckTimeTracking\Calendar\TimesheetCalendarBackend;
 use OCA\DeckTimeTracking\Db\Timesheet;
 use OCP\IUser;

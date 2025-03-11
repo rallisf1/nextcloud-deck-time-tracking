@@ -225,8 +225,8 @@
 
     function addTableEventListeners(card) {
         if(document.querySelector('table.timesheet button.add')) {
-            document.querySelector('table.timesheet button.add').addEventListener("click", function () {
-                OCDialogs.confirmHtml(timesheetForm(card.assignedUsers, card.id), 'Add a Timesheet record', async (ok) => {
+            document.querySelector('table.timesheet button.add').addEventListener("click", async function () {
+                OCDialogs.confirmHtml(await timesheetForm(card.id), 'Add a Timesheet record', async (ok) => {
                     if(ok) {
                         const data = new FormData(document.querySelector('form[name="timesheet-form"]'));
                         const startDate = new Date(datetimeToUnix(`${data.get('start')}:00`) * 1000);
@@ -282,9 +282,9 @@
                     }
                 }
         )}));
-        document.querySelectorAll('table.timesheet button.edit').forEach(b => b.addEventListener("click", function (event) {
+        document.querySelectorAll('table.timesheet button.edit').forEach(b => b.addEventListener("click", async function (event) {
             const timesheetId = event.currentTarget.dataset.id;
-            OCDialogs.confirmHtml(timesheetForm(card.assignedUsers, card.id, card.timesheets.find(t => t.id == timesheetId)), 'Edit Timesheet record', async (ok) => {
+            OCDialogs.confirmHtml(await timesheetForm(card.id, card.timesheets.find(t => t.id == timesheetId)), 'Edit Timesheet record', async (ok) => {
                 if(ok) {
                     const data = new FormData(document.querySelector('form[name="timesheet-form"]'));
                     const startDate = new Date(datetimeToUnix(`${data.get('start')}:00`) * 1000);
@@ -479,7 +479,7 @@
         */
     }
 
-    function timesheetForm(assignees, card_id, timesheet = null) {
+    async function timesheetForm(card_id, timesheet = null) {
         const form = document.createElement("form");
         form.name = 'timesheet-form';
         form.className = 'timesheet';
@@ -515,18 +515,28 @@
             usersInput.name = 'assignee';
             usersInput.id = 'assignee';
             usersInput.required = true;
-            assignees.forEach(a => {
-                if(a.type === 0) {
-                    usersInput.add(new Option(a.participant.displayname, a.participant.uid));
+
+            const assigneesResponse = await fetch(`${baseUrl}apps/decktimetracking/card/${card_id}/assignees`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'OCS-APIREQUEST': 'true'
                 }
             });
-            if(timesheet !== null) {
-                for (const option of usersInput.options) {
-                    if (timesheet.user_id === option.value) {
-                        option.setAttribute('selected', 'selected');
-                        break;
+            if (assigneesResponse.ok) {
+                const t = await assigneesResponse.json();            
+                t.assignees.forEach(a => {
+                    usersInput.add(new Option(a.name, a.uid));
+                });
+                if(timesheet !== null) {
+                    for (const option of usersInput.options) {
+                        if (timesheet.user_id === option.value) {
+                            option.setAttribute('selected', 'selected');
+                            break;
+                        }
                     }
                 }
+            } else {
+                console.error(assigneesResponse.error);
             }
             userDiv.appendChild(userLabel);
             userDiv.appendChild(usersInput);

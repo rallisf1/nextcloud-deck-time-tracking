@@ -7,6 +7,7 @@ namespace OCA\DeckTimeTracking\Controller;
 use OCA\Deck\Db\Acl;
 use OCA\Deck\Db\AssignmentMapper;
 use OCA\Deck\Db\CardMapper;
+use OCA\Deck\Service\CirclesService;
 use OCA\Deck\Service\PermissionService;
 use OCA\DeckTimeTracking\Db\Timesheet;
 use OCA\DeckTimeTracking\Db\TimesheetMapper;
@@ -14,7 +15,9 @@ use OCA\DeckTimeTracking\Notification\NotificationHelper;
 use OCP\AppFramework\ApiController;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\IGroupManager;
 use OCP\IRequest;
+use OCP\IUserManager;
 use OCP\IUserSession;
 
 class TimesheetController extends ApiController {
@@ -23,6 +26,9 @@ class TimesheetController extends ApiController {
     private PermissionService $permissionService;
 	private AssignmentMapper $assignmentMapper;
     private IUserSession $userSession;
+    private IUserManager $userManager;
+    private IGroupManager $groupManager;
+    private CirclesService $circlesService;
     private NotificationHelper $notificationHelper;
 
     public function __construct(
@@ -33,6 +39,9 @@ class TimesheetController extends ApiController {
 		PermissionService $permissionService,
         AssignmentMapper $assignmentMapper,
         IUserSession $userSession,
+        IUserManager $userManager,
+        IGroupManager $groupManager,
+        CirclesService $circlesService,
         NotificationHelper $notificationHelper
     ) {
         parent::__construct($AppName, $request);
@@ -41,6 +50,9 @@ class TimesheetController extends ApiController {
 		$this->permissionService = $permissionService;
         $this->assignmentMapper = $assignmentMapper;
         $this->userSession = $userSession;
+        $this->userManager = $userManager;
+        $this->groupManager = $groupManager;
+        $this->circlesService = $circlesService;
         $this->notificationHelper = $notificationHelper;
     }
 
@@ -97,7 +109,7 @@ class TimesheetController extends ApiController {
     public function stopTracking(int $id, string $description = ''): DataResponse {
         $timesheet = $this->mapper->find($id);
         if ($timesheet === null) {
-            return new DataResponse(['error' => 'Entry not found'], 404);
+            return new DataResponse(['error' => 'Timesheet record not found'], 404);
         }
         if ($timesheet->getUserId() !== $this->userSession->getUser()->getUID()) {
             return new DataResponse(['error' => 'Only the owner can stop his timer'], 403);
@@ -147,7 +159,7 @@ class TimesheetController extends ApiController {
     public function editTimesheet(int $id, string $userId, string $start, string|null $end, string $description): DataResponse {
         $timesheet = $this->mapper->find($id);
         if ($timesheet === null) {
-            return new DataResponse(['error' => 'Entry not found'], 404);
+            return new DataResponse(['error' => 'Timesheet record not found'], 404);
         }
         $boardId = $this->cardMapper->findBoardId($timesheet->getCardId());
         $currentUserId = $this->userSession->getUser()->getUID();
@@ -178,7 +190,7 @@ class TimesheetController extends ApiController {
     public function deleteTimesheet(int $id): DataResponse {
         $timesheet = $this->mapper->find($id);
         if ($timesheet === null) {
-            return new DataResponse(['error' => 'Entry not found'], 404);
+            return new DataResponse(['error' => 'Timesheet record not found'], 404);
         }
         $boardId = $this->cardMapper->findBoardId($timesheet->getCardId());
         $currentUserId = $this->userSession->getUser()->getUID();
@@ -195,6 +207,56 @@ class TimesheetController extends ApiController {
         $this->notificationHelper->sendDelete($timesheet);
 
         return new DataResponse(['message' => 'Deleted']);
+
+    }
+
+    /**
+     * Get all assigned users.
+     */
+    #[NoAdminRequired]
+    public function getAssignedUsers(int $cardId): DataResponse {
+        $card = $this->cardMapper->find($cardId);
+        if ($card === null) {
+            return new DataResponse(['error' => 'Card not found'], 404);
+        }
+        $boardId = $this->cardMapper->findBoardId($cardId);
+        $currentUserId = $this->userSession->getUser()->getUID();
+        $permissions = $this->permissionService->getPermissions($boardId, $currentUserId);
+        $canAccess = false;
+        if($permissions && ($permissions[Acl::PERMISSION_EDIT] || $permissions[Acl::PERMISSION_MANAGE])) {
+            $canAccess = true;
+        }
+        if(!$canAccess) {
+            return new DataResponse(['error' => 'Only board managers and editors can access card assignees'], 403);
+        }
+        $users = [];
+        $assignments = $this->assignmentMapper->findAll($cardId);
+        foreach($assignments as $assignment) {
+            switch($assignment->getType()) {
+                case Acl::PERMISSION_TYPE_USER:
+                    $user = $this->userManager->get($assignment->getParticipant());
+                    if($user) {
+                        $users[] = ['uid' => $user->getUID(), 'name' => $user->getDisplayName()];
+                    }
+                    break;
+                case Acl::PERMISSION_TYPE_GROUP:
+                    $group = $this->groupManager->get($assignment->getParticipant());
+                    foreach($group->getUsers() as $groupUser) {
+                        $users[] = ['uid' => $groupUser->getUID(), 'name' => $groupUser->getDisplayName()];
+                    }
+                    break;
+                case Acl::PERMISSION_TYPE_CIRCLE:
+                    if($this->circlesService->isCirclesEnabled()) {
+                        $circle = $this->circlesService->getCircle($assignment->getParticipant());
+                        $circleUsers = $circle->getMembers();
+                        foreach($circleUsers as $circleUser) {
+                            $users[] = ['uid' => $circleUser->getUserId(), 'name' => $circleUser->getDisplayName()];
+                        }
+                    }
+                    break;
+            }
+        }
+        return new DataResponse(['assignees' => array_unique($users, SORT_REGULAR)]);
 
     }
 }

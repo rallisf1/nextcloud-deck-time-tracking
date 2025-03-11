@@ -26,4 +26,26 @@ class CustomCard extends Card {
             $this->$setter($card->$getter());
         }
     }
+    /*
+    public function getAllAssignedUsers(Card $card) {
+
+    }
+
+
+	private function getOrigin(Assignment $assignment) {
+		if ($assignment->getType() === Assignment::TYPE_USER) {
+			$origin = $this->userManager->userExists($assignment->getParticipant());
+			return $origin ? new User($assignment->getParticipant(), $this->userManager) : null;
+		}
+		if ($assignment->getType() === Assignment::TYPE_GROUP) {
+			$origin = $this->groupManager->get($assignment->getParticipant());
+			return $origin ? new Group($origin) : null;
+		}
+		if ($assignment->getType() === Assignment::TYPE_CIRCLE) {
+			$origin = $this->circleService->getCircle($assignment->getParticipant());
+			return $origin ? new Circle($origin) : null;
+		}
+		return null;
+	}
+    */
 }

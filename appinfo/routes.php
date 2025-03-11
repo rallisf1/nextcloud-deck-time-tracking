@@ -8,5 +8,6 @@ return [
         ['name' => 'timesheet#createTimesheet', 'url' => '/timesheet', 'verb' => 'POST'],
         ['name' => 'timesheet#editTimesheet', 'url' => '/timesheet/{id}', 'verb' => 'PUT'],
         ['name' => 'timesheet#deleteTimesheet', 'url' => '/timesheet/{id}', 'verb' => 'DELETE'],
+        ['name' => 'timesheet#getAssignedUsers', 'url' => '/card/{cardId}/assignees', 'verb' => 'GET'],
     ],
 ];
