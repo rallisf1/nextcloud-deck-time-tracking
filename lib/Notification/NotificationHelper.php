@@ -17,6 +17,7 @@ use OCA\Deck\Service\PermissionService;
 use OCA\DeckTimeTracking\Db\TimesheetMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Notification\IManager;
+use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 
 class NotificationHelper {
@@ -27,7 +28,7 @@ class NotificationHelper {
 	protected PermissionService $permissionService;
 	protected IManager $notificationManager;
 	protected TimesheetMapper $timesheetMapper;
-	protected string $currentUser;
+    protected IUserSession $userSession;
     protected LoggerInterface $logger;
 	private array $boards = [];
 
@@ -38,8 +39,8 @@ class NotificationHelper {
 		PermissionService $permissionService,
 		IManager $notificationManager,
 		TimesheetMapper $timesheetMapper,
-		LoggerInterface $logger,
-		$userId,
+        IUserSession $userSession,
+		LoggerInterface $logger
 	) {
 		$this->cardMapper = $cardMapper;
 		$this->boardMapper = $boardMapper;
@@ -48,7 +49,7 @@ class NotificationHelper {
 		$this->notificationManager = $notificationManager;
 		$this->timesheetMapper = $timesheetMapper;
         $this->logger = $logger;
-		$this->currentUser = $userId;
+		$this->userSession = $userSession;
 	}
 
     public function sendStart(Timesheet $timesheet): void {
@@ -124,7 +125,8 @@ class NotificationHelper {
 		}
         /** @var User $user */
 		foreach ($this->permissionService->findUsers($boardId) as $user) {
-            if($user->getUID() === $this->currentUser) continue; // don't shoot the messenger
+            $currentUserId = $this->userSession->getUser()->getUID();
+            if($user->getUID() === $currentUserId) continue; // don't shoot the messenger
             if($user->getUID() === $board->getOwner() || $this->assignmentMapper->isUserAssigned($card->getId(), $user->getUID())) {
                 $notification = $this->notificationManager->createNotification();
                 $notification
@@ -132,7 +134,7 @@ class NotificationHelper {
                     ->setUser((string)$user->getUID())
                     ->setObject('timesheet', (string)$timesheet->getId())
                     ->setSubject('timesheet-edit', [
-						$this->currentUser, $board->getTitle(), $card->getTitle(), $timesheet->getDescription(), $timesheet->getUserId()
+						$currentUserId, $board->getTitle(), $card->getTitle(), $timesheet->getDescription(), $timesheet->getUserId()
 					])
 					->setDateTime(new DateTime());
                 $this->notificationManager->notify($notification);
@@ -153,7 +155,8 @@ class NotificationHelper {
 		}
         /** @var User $user */
 		foreach ($this->permissionService->findUsers($boardId) as $user) {
-            if($user->getUID() === $this->currentUser) continue; // don't shoot the messenger
+            $currentUserId = $this->userSession->getUser()->getUID();
+            if($user->getUID() === $currentUserId) continue; // don't shoot the messenger
             if($user->getUID() === $board->getOwner() || $this->assignmentMapper->isUserAssigned($card->getId(), $user->getUID())) {
                 $notification = $this->notificationManager->createNotification();
                 $notification
@@ -161,7 +164,7 @@ class NotificationHelper {
                     ->setUser((string)$user->getUID())
                     ->setObject('timesheet', (string)$timesheet->getId())
                     ->setSubject('timesheet-delete', [
-						$this->currentUser, $board->getTitle(), $card->getTitle(), $timesheet->getDescription(), $timesheet->getUserId()
+						$currentUserId, $board->getTitle(), $card->getTitle(), $timesheet->getDescription(), $timesheet->getUserId()
 					])
 					->setDateTime(new DateTime());
                 $this->notificationManager->notify($notification);
