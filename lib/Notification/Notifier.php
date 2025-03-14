@@ -97,9 +97,9 @@ class Notifier implements INotifier {
 					$l->t('User %s started working on %s > %s > %s', [$dn, $params[1], $stack->getTitle(), $params[2]])
 				);
 				$notification->setRichSubject(
-					$l->t('{user} started working on {deck-card} on {deck-board}'),
+					$l->t('{user} started working on {board} > {stack} > {card}'),
 					[
-						'deck-card' => [
+						'card' => [
 							'type' => 'deck-card',
 							'id' => $cardId,
 							'name' => $params[2],
@@ -107,11 +107,16 @@ class Notifier implements INotifier {
 							'stackname' => $stack->getTitle(),
 							'link' => $this->getCardUrl($boardId, $cardId),
 						],
-						'deck-board' => [
+						'board' => [
 							'type' => 'deck-board',
 							'id' => $boardId,
 							'name' => $params[1],
 							'link' => $this->getBoardUrl($boardId),
+						],
+						'stack' => [
+							'type' => 'highlight',
+							'id' => $stack->getId(),
+							'name' => $stack->getTitle(),
 						],
 						'user' => [
 							'type' => 'user',
@@ -133,9 +138,9 @@ class Notifier implements INotifier {
 					$l->t('User %s finished %s on %s > %s > %s', [$dn, $desc, $params[1], $stack->getTitle(), $params[2]])
 				);
 				$notification->setRichSubject(
-					$l->t('{user} finished {description} on {deck-card} on {deck-board}'),
+					$l->t('{user} finished {description} on {board} > {stack} > {card}'),
 					[
-						'deck-card' => [
+						'card' => [
 							'type' => 'deck-card',
 							'id' => $cardId,
 							'name' => $params[2],
@@ -143,11 +148,16 @@ class Notifier implements INotifier {
 							'stackname' => $stack->getTitle(),
 							'link' => $this->getCardUrl($boardId, $cardId),
 						],
-						'deck-board' => [
+						'board' => [
 							'type' => 'deck-board',
 							'id' => $boardId,
 							'name' => $params[1],
 							'link' => $this->getBoardUrl($boardId),
+						],
+						'stack' => [
+							'type' => 'highlight',
+							'id' => $stack->getId(),
+							'name' => $stack->getTitle(),
 						],
 						'user' => [
 							'type' => 'user',
@@ -155,7 +165,7 @@ class Notifier implements INotifier {
 							'name' => $dn,
 						],
 						'description' => [
-							'type' => 'highlight', // I had to dig a lot for this
+							'type' => 'highlight',
 							'id' => $notification->getObjectId(),
 							'name' => $desc,
 						]
@@ -180,9 +190,9 @@ class Notifier implements INotifier {
 					$l->t('User %s updated timesheet record %s of %s on %s > %s > %s', [$dn, $desc, $an, $params[1], $stack->getTitle(), $params[2]])
 				);
 				$notification->setRichSubject(
-					$l->t('{user} updated timesheet record {description} of {agent} on {deck-card} on {deck-board}'),
+					$l->t('{user} updated timesheet record {description} of {agent} on {board} > {stack} > {card}'),
 					[
-						'deck-card' => [
+						'card' => [
 							'type' => 'deck-card',
 							'id' => $cardId,
 							'name' => $params[2],
@@ -190,7 +200,7 @@ class Notifier implements INotifier {
 							'stackname' => $stack->getTitle(),
 							'link' => $this->getCardUrl($boardId, $cardId),
 						],
-						'deck-board' => [
+						'board' => [
 							'type' => 'deck-board',
 							'id' => $boardId,
 							'name' => $params[1],
@@ -200,6 +210,11 @@ class Notifier implements INotifier {
 							'type' => 'user',
 							'id' => $params[0],
 							'name' => $dn,
+						],
+						'stack' => [
+							'type' => 'highlight',
+							'id' => $stack->getId(),
+							'name' => $stack->getTitle(),
 						],
 						'agent' => [
 							'type' => 'user',
@@ -232,9 +247,9 @@ class Notifier implements INotifier {
 					$l->t('User %s removed timesheet record %s of %s on %s > %s > %s', [$dn, $desc, $an, $params[1], $stack->getTitle(), $params[2]])
 				);
 				$notification->setRichSubject(
-					$l->t('{user} removed timesheet record {description} of {agent} on {deck-card} on {deck-board}'),
+					$l->t('{user} removed timesheet record {description} of {agent} on {board} > {stack} > {card}'),
 					[
-						'deck-card' => [
+						'card' => [
 							'type' => 'deck-card',
 							'id' => $cardId,
 							'name' => $params[2],
@@ -242,7 +257,7 @@ class Notifier implements INotifier {
 							'stackname' => $stack->getTitle(),
 							'link' => $this->getCardUrl($boardId, $cardId),
 						],
-						'deck-board' => [
+						'board' => [
 							'type' => 'deck-board',
 							'id' => $boardId,
 							'name' => $params[1],
@@ -252,6 +267,11 @@ class Notifier implements INotifier {
 							'type' => 'user',
 							'id' => $params[0],
 							'name' => $dn,
+						],
+						'stack' => [
+							'type' => 'highlight',
+							'id' => $stack->getId(),
+							'name' => $stack->getTitle(),
 						],
 						'agent' => [
 							'type' => 'user',
@@ -271,9 +291,9 @@ class Notifier implements INotifier {
 					$l->t('Did you forget your timer on %s > %s > %s ?', [$params[0], $stack->getTitle(), $params[1]])
 				);
 				$notification->setRichSubject(
-					$l->t('Did you forget your timer on {deck-card} on {deck-board} ?'),
+					$l->t('Did you forget your timer on {board} > {stack} > {card} ?'),
 					[
-						'deck-card' => [
+						'card' => [
 							'type' => 'deck-card',
 							'id' => $cardId,
 							'name' => $params[1],
@@ -281,12 +301,17 @@ class Notifier implements INotifier {
 							'stackname' => $stack->getTitle(),
 							'link' => $this->getCardUrl($boardId, $cardId),
 						],
-						'deck-board' => [
+						'board' => [
 							'type' => 'deck-board',
 							'id' => $boardId,
 							'name' => $params[0],
 							'link' => $this->getBoardUrl($boardId),
-						]
+						],
+						'stack' => [
+							'type' => 'highlight',
+							'id' => $stack->getId(),
+							'name' => $stack->getTitle(),
+						],
 					]
 				);
 				break;

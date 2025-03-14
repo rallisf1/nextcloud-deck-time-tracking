@@ -47,7 +47,8 @@ class Application extends App implements IBootstrap {
 				$c->get('IUserManager'),
 				$c->get('IGroupManager'),
 				$c->get(CirclesService::class),
-				$c->get('NotificationHelper')
+				$c->get('NotificationHelper'),
+				$c->get('ActivityManager')
 			);
 		});
 

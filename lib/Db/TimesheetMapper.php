@@ -127,7 +127,7 @@ class TimesheetMapper extends QBMapper {
         $qb = $this->db->getQueryBuilder();
         $qb->select('*')
            ->from($this->table)
-           ->where($qb->expr()->eq('t.user_id', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR)))
+           ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR)))
            ->andWhere($qb->expr()->isNull('end'));
 
         return $this->findEntities($qb);

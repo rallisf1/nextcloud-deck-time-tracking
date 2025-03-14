@@ -7,6 +7,7 @@ namespace OCA\DeckTimeTracking\Notification;
 use DateTime;
 use Exception;
 use OCA\DeckTimeTracking\Db\Timesheet;
+use OCA\Deck\Db\Acl;
 use OCA\Deck\Db\AssignmentMapper;
 use OCA\Deck\Db\BoardMapper;
 use OCA\Deck\Db\Card;
@@ -18,7 +19,6 @@ use OCA\DeckTimeTracking\Db\TimesheetMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Notification\IManager;
 use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 
 class NotificationHelper {
 
@@ -29,7 +29,6 @@ class NotificationHelper {
 	protected IManager $notificationManager;
 	protected TimesheetMapper $timesheetMapper;
     protected IUserSession $userSession;
-    protected LoggerInterface $logger;
 	private array $boards = [];
 
 	public function __construct(
@@ -39,8 +38,7 @@ class NotificationHelper {
 		PermissionService $permissionService,
 		IManager $notificationManager,
 		TimesheetMapper $timesheetMapper,
-        IUserSession $userSession,
-		LoggerInterface $logger
+        IUserSession $userSession
 	) {
 		$this->cardMapper = $cardMapper;
 		$this->boardMapper = $boardMapper;
@@ -48,7 +46,6 @@ class NotificationHelper {
 		$this->permissionService = $permissionService;
 		$this->notificationManager = $notificationManager;
 		$this->timesheetMapper = $timesheetMapper;
-        $this->logger = $logger;
 		$this->userSession = $userSession;
 	}
 
@@ -95,7 +92,8 @@ class NotificationHelper {
         /** @var User $user */
 		foreach ($this->permissionService->findUsers($boardId) as $user) {
             if($user->getUID() === $timesheet->getUserId()) continue; // don't shoot the messenger
-            if($user->getUID() === $board->getOwner() || $this->assignmentMapper->isUserAssigned($card->getId(), $user->getUID())) {
+            $permissions = $this->permissionService->getPermissions($boardId, $user->getUID());
+            if($permissions[Acl::PERMISSION_EDIT] || $permissions[Acl::PERMISSION_MANAGE] || $this->assignmentMapper->isUserAssigned($card->getId(), $user->getUID())) {
                 $notification = $this->notificationManager->createNotification();
                 $notification
                     ->setApp('decktimetracking')
@@ -105,7 +103,7 @@ class NotificationHelper {
 						$timesheet->getUserId(), $board->getTitle(), $card->getTitle(), $timesheet->getDescription()
 					])
 					->setDateTime($timesheet->getEnd());
-                //$this->logger->warning('Sending timetracking end notification', ['notification' => $notification]);
+
                 $this->notificationManager->notify($notification);
             }
         }
@@ -127,7 +125,8 @@ class NotificationHelper {
 		foreach ($this->permissionService->findUsers($boardId) as $user) {
             $currentUserId = $this->userSession->getUser()->getUID();
             if($user->getUID() === $currentUserId) continue; // don't shoot the messenger
-            if($user->getUID() === $board->getOwner() || $this->assignmentMapper->isUserAssigned($card->getId(), $user->getUID())) {
+            $permissions = $this->permissionService->getPermissions($boardId, $user->getUID());
+            if($permissions[Acl::PERMISSION_EDIT] || $permissions[Acl::PERMISSION_MANAGE] || $this->assignmentMapper->isUserAssigned($card->getId(), $user->getUID())) {
                 $notification = $this->notificationManager->createNotification();
                 $notification
                     ->setApp('decktimetracking')
@@ -157,7 +156,8 @@ class NotificationHelper {
 		foreach ($this->permissionService->findUsers($boardId) as $user) {
             $currentUserId = $this->userSession->getUser()->getUID();
             if($user->getUID() === $currentUserId) continue; // don't shoot the messenger
-            if($user->getUID() === $board->getOwner() || $this->assignmentMapper->isUserAssigned($card->getId(), $user->getUID())) {
+            $permissions = $this->permissionService->getPermissions($boardId, $user->getUID());
+            if($permissions[Acl::PERMISSION_EDIT] || $permissions[Acl::PERMISSION_MANAGE] || $this->assignmentMapper->isUserAssigned($card->getId(), $user->getUID())) {
                 $notification = $this->notificationManager->createNotification();
                 $notification
                     ->setApp('decktimetracking')

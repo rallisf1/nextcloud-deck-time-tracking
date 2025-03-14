@@ -12,6 +12,7 @@ use OCA\Deck\Service\PermissionService;
 use OCA\DeckTimeTracking\Db\Timesheet;
 use OCA\DeckTimeTracking\Db\TimesheetMapper;
 use OCA\DeckTimeTracking\Notification\NotificationHelper;
+use OCA\DeckTimeTracking\Activity\ActivityManager;
 use OCP\AppFramework\ApiController;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -30,6 +31,7 @@ class TimesheetController extends ApiController {
     private IGroupManager $groupManager;
     private CirclesService $circlesService;
     private NotificationHelper $notificationHelper;
+    private ActivityManager $activityManager;
 
     public function __construct(
         string $AppName,
@@ -42,7 +44,8 @@ class TimesheetController extends ApiController {
         IUserManager $userManager,
         IGroupManager $groupManager,
         CirclesService $circlesService,
-        NotificationHelper $notificationHelper
+        NotificationHelper $notificationHelper,
+        ActivityManager $activityManager
     ) {
         parent::__construct($AppName, $request);
         $this->mapper = $mapper;
@@ -54,6 +57,7 @@ class TimesheetController extends ApiController {
         $this->groupManager = $groupManager;
         $this->circlesService = $circlesService;
         $this->notificationHelper = $notificationHelper;
+        $this->activityManager = $activityManager;
     }
 
     /**
@@ -98,6 +102,7 @@ class TimesheetController extends ApiController {
         $savedTimesheet = $this->mapper->insert($timesheet);
 
         $this->notificationHelper->sendStart($savedTimesheet);
+        $this->activityManager->triggerEvent($savedTimesheet, 'timer-start', $userId);
 
         return new DataResponse($savedTimesheet);
     }
@@ -112,13 +117,14 @@ class TimesheetController extends ApiController {
             return new DataResponse(['error' => 'Timesheet record not found'], 404);
         }
         if ($timesheet->getUserId() !== $this->userSession->getUser()->getUID()) {
-            return new DataResponse(['error' => 'Only the owner can stop his timer'], 403);
+            return new DataResponse(['error' => 'Only the timer owner can stop his timer'], 403);
         }
         $timesheet->setEnd(new \DateTime());
         $timesheet->setDescription($description);
         $updatedTimesheet = $this->mapper->update($timesheet);
 
         $this->notificationHelper->sendEnd($updatedTimesheet);
+        $this->activityManager->triggerEvent($updatedTimesheet, 'timer-end', $updatedTimesheet->getUserId());
 
         return new DataResponse($updatedTimesheet);
     }
@@ -148,6 +154,7 @@ class TimesheetController extends ApiController {
         $savedTimesheet = $this->mapper->insert($timesheet);
 
         $this->notificationHelper->sendEdit($savedTimesheet);
+        $this->activityManager->triggerEvent($savedTimesheet, 'timesheet-edit', $currentUserId);
 
         return new DataResponse($savedTimesheet);
     }
@@ -179,6 +186,7 @@ class TimesheetController extends ApiController {
         $savedTimesheet = $this->mapper->update($timesheet);
 
         $this->notificationHelper->sendEdit($savedTimesheet);
+        $this->activityManager->triggerEvent($savedTimesheet, 'timesheet-edit', $currentUserId);
 
         return new DataResponse($savedTimesheet);
     }
@@ -205,6 +213,7 @@ class TimesheetController extends ApiController {
         $this->mapper->delete($timesheet);
 
         $this->notificationHelper->sendDelete($timesheet);
+        $this->activityManager->triggerEvent($timesheet, 'timesheet-delete', $currentUserId);
 
         return new DataResponse(['message' => 'Deleted']);
 
