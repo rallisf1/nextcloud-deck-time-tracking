@@ -35,15 +35,11 @@ jobs:
 
       - name: Get commit messages since last tag
         id: get_changelog
-        run: |
-          if [ -n "${{ env.last_tag }}" ]; then
-            git log ${{ env.last_tag }}..HEAD --pretty=format:"- %s" > changelog.txt
-          else
-            git log --pretty=format:"- %s" > changelog.txt
-          fi
-          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
-          cat changelog.txt >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+        uses: somaz94/commit-info-extractor@v1
+        with:
+          commit_limit: 20
+          pretty: true
+          key_variable: 'changelog'
 
       - name: Create Git tag
         run: |
