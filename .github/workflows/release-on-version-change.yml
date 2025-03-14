@@ -37,12 +37,12 @@ jobs:
         id: get_changelog
         run: |
           if [ -n "${{ env.last_tag }}" ]; then
-            log=$(git log ${{ env.last_tag }}..HEAD --pretty=format:"- %s")
+            git log ${{ env.last_tag }}..HEAD --pretty=format:"- %s" > changelog.txt
           else
-            log=$(git log --pretty=format:"- %s")
+            git log --pretty=format:"- %s" > changelog.txt
           fi
-          echo "changelog<<EOF" >> $GITHUB_ENV
-          echo "$log" >> $GITHUB_ENV
+          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+          cat changelog.txt >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
       - name: Create Git tag
