@@ -41,7 +41,9 @@ jobs:
           else
             log=$(git log --pretty=format:"- %s")
           fi
-          echo "changelog=$log" >> $GITHUB_ENV
+          echo "changelog<<EOF" >> $GITHUB_ENV
+          echo "$log" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Create Git tag
         run: |
