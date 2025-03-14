@@ -17,7 +17,7 @@ A complementary app for Deck, because all the other time tracking (Nextcloud) ap
 - Deck App
 - [x] Show card ID badge (checked in Deck settings, refresh after enabling)",
 	"license": "AGPL-3.0-or-later",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"authors": [
 		{
 			"name": "John Rallis",
