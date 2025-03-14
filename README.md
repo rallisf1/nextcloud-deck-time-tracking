@@ -29,9 +29,7 @@ A complementary app for [Deck](https://github.com/nextcloud/deck), because all t
 
 ## Todo
 
-- Integrate with Activity app for audit logs
 - Integrate with the Analytics app for reports & charts
-- Use l10n in more place than only notifications
 
 ## Under consideration
 
