@@ -1,3 +1,7 @@
+# Archived
+
+My team has switched to another time tracking solution, thus the development of this plugin has ceased.
+
 # Deck Time Tracking
 
 A complementary app for [Deck](https://github.com/nextcloud/deck), because all the other time tracking (Nextcloud) apps either lack Kanban view, Nextcloud Calendar/CalDAV integration, or are just harder to use (corporate project management style).
